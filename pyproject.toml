@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "insituwebserver"
+version = "0.0.1b1"
+description = "Helper for In Place web servers."
+authors = ["Wolfgang Kühn"]
+homepage = "https://github.com/decatur/insituwebserver"
+repository = "https://github.com/decatur/insituwebserver"
+license = "MIT"
+readme = "README.md"
+packages = [
+    { include = "insituwebserver" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.0"
