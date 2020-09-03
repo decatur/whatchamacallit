@@ -4,7 +4,7 @@ import importlib.util
 from starlette.exceptions import HTTPException
 from starlette.responses import HTMLResponse, Response
 
-import make
+from insituwebserver import make
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
@@ -19,9 +19,14 @@ app = FastAPI()
 @app.get(r"/{file_path:path}\.js", response_class=JavascriptResponse)
 def read_js(file_path: str):
     source = pathlib.Path(file_path + '.js')
-    # if source.parts[0] == 'gridchen':
-    #     origin = pathlib.Path(importlib.util.find_spec('gridchen').origin)
-    #     return (origin.parent.parent / source).read_text(encoding='utf8')
+    # TODO: Move to insitu
+    if len(source.parts) > 1:
+        prefix = source.parts[0].replace('@', '')
+        spec = importlib.util.find_spec(prefix)
+        if spec:
+            origin = pathlib.Path(spec.origin)
+            source = origin.parent.parent / source
+
     return make.read_file(source, {'gridchen/': '/gridchen/'})
 
 

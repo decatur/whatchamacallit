@@ -15,7 +15,9 @@ from typing import List, Tuple, Generator, Dict
 #   https://medium.com/@dmnsgn/in-2020-go-bundler-free-eb29c1f05fc9
 #   https://wicg.github.io/import-maps/
 #   https://medium.com/@dmnsgn/es-modules-in-the-browser-almost-now-3638ffafdc68
-def process_file(source: Path, target: Path, spec_mapping: List[Tuple[str, str]]):
+
+
+def process_file(source: Path, target: Path, spec_mapping: Dict[str, str]):
     if not target.parent.is_dir():
         target.parent.mkdir(parents=True)
     if source.suffix in {'.html', '.js'}:
@@ -41,6 +43,7 @@ def process_imports(src: str, imports: Dict[str, str], scopes: dict = None) -> T
 
     :param src:
     :param imports: See https://github.com/WICG/import-maps
+    :param scopes: Not used. See https://github.com/WICG/import-maps
     :return:
     """
 
@@ -56,25 +59,31 @@ def process_imports(src: str, imports: Dict[str, str], scopes: dict = None) -> T
     m = re.search(r'(function|const|let|var)\s', src[end_of_comments:], flags=re.DOTALL)
     if m is None:
         # TODO: Handle empty module
-        return (src, False)
-    print(m)
+        return src, False
+
     import_section = src[end_of_comments:end_of_comments + m.start()]
-    is_import_section = re.match('\s*(import|export)\s', import_section) is not None
+    is_import_section = re.match(r'\s*(import|export)\s', import_section) is not None
     if is_import_section:
         was_patched = False
         for key, value in imports.items():
-            import_section, patch_count = re.subn(r'((import|export).*?) (["\'])' + key, r'\1 \3' + value, import_section, flags=re.DOTALL)
+            import_section, patch_count = re.subn(
+                r'((import|export).*?) (["\'])' + key,
+                r'\1 \3' + value,
+                import_section, flags=re.DOTALL)
             was_patched |= patch_count > 0
 
         if was_patched:
-            return (src[0:end_of_comments] + import_section + src[end_of_comments + m.start():], was_patched)
+            return src[0:end_of_comments] + import_section + src[end_of_comments + m.start():], was_patched
         else:
-            return (src, False)
+            return src, False
     else:
-        return (src, False)
+        return src, False
 
 
 class MyHTMLParser(HTMLParser):
+    def error(self, message):
+        raise Exception(message)
+
     def __init__(self, import_mappings):
         super().__init__()
         self.import_mappings = import_mappings
@@ -122,30 +131,14 @@ def process_imports_html(src:str, imports: Dict[str, str], scopes: dict = None) 
     return ''.join(parser.buffer), False
 
 
-def process_dir(source: Generator[Path, None, None], target_root: Path, spec_mapping: List[Tuple[str, str]]):
+def process_dir(source: Generator[Path, None, None], target_root: Path, spec_mapping: Dict[str, str]):
     for elem in source:
         if elem.is_file():
             process_file(elem, target_root / elem, spec_mapping)
 
 
-def process_dir_recursive(source: Path, target_root: Path, spec_mapping: List[Tuple[str, str]]):
+def process_dir_recursive(source: Path, target_root: Path, spec_mapping: Dict[str, str]):
     for elem in source.rglob('*.*'):
         p = Path('./') / elem
         if p.is_file():
             process_file(p, target_root / elem, spec_mapping)
-
-
-def build():
-    target_root = Path('./docs')
-    spec_mapping = {'gridchen/': 'https://decatur.github.io/grid-chen/gridchen/'}
-    process_dir(Path('./').glob('*.*'), target_root, spec_mapping)
-    process_dir(Path('./demos').glob('*.*'), target_root, spec_mapping)
-    process_dir(Path('./formchen').rglob('*.*'), target_root, spec_mapping)
-
-    target_root = Path('./lib')
-    spec_mapping = {'gridchen/', '/gridchen/'}
-    process_dir(Path('./formchen').rglob('*.*'), target_root, spec_mapping)
-
-
-if __name__ == '__main__':
-    build()
