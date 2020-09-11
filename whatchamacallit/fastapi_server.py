@@ -19,7 +19,6 @@ app = FastAPI()
 @app.get(r"/{file_path:path}\.js", response_class=JavascriptResponse)
 def read_js(file_path: str):
     source = pathlib.Path(file_path + '.js')
-    # TODO: Move to insitu
     if len(source.parts) > 1:
         prefix = source.parts[0].replace('@', '')
         spec = importlib.util.find_spec(prefix)

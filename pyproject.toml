@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "insituwebserver"
-version = "0.0.1b1"
+name = "whatchamacallit"
+version = "0.0.1"
 description = "Helper for In Place web servers."
 authors = ["Wolfgang Kühn"]
 homepage = "https://github.com/decatur/insituwebserver"
@@ -8,7 +8,7 @@ repository = "https://github.com/decatur/insituwebserver"
 license = "MIT"
 readme = "README.md"
 packages = [
-    { include = "insituwebserver" }
+    { include = "whatchamacallit" }
 ]
 
 [tool.poetry.dependencies]
