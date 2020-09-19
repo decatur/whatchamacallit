@@ -3,7 +3,9 @@ import re
 import shutil
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import List, Tuple, Generator, Dict, Optional
+from typing import List, Tuple, Generator, Dict
+
+import importlib_resources
 
 
 # Bundlers:
@@ -146,16 +148,15 @@ def process_dir_recursive(source: Path, target_root: Path, spec_mapping: Dict[st
             process_file(p, target_root / elem, spec_mapping)
 
 
-def resolve(path) -> Optional[Path]:
+def resolve_package_resource(path: Path) -> Path:
     if len(path.parts) == 1 or not path.suffix:
-        return
+        return path
+
     prefix = path.parts[0].replace('@', '')
     # Only finds the spec if package contains a __init__.py!
+
     spec = importlib.util.find_spec(prefix)
     if not spec:
-        return
+        return path
 
-    # spec.origin = WindowsPath('C:/ws/projects/VirtualPowerStorage/venv/lib/site-packages/appchen/__init__.py')
-    origin = Path(spec.origin)
-    source = origin.parent.parent / prefix / Path(*path.parts[1:])
-    return source
+    return importlib_resources.files(prefix).joinpath(Path(*path.parts[1:]))

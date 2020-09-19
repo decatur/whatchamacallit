@@ -1,18 +1,20 @@
 [tool.poetry]
 name = "whatchamacallit"
-version = "0.0.1"
-description = "Helper for In Place web servers."
+version = "0.0.3"
+description = "Use web resources the pythonic way, import JavaScript modules like you do with Python modules."
 authors = ["Wolfgang Kühn"]
-homepage = "https://github.com/decatur/insituwebserver"
-repository = "https://github.com/decatur/insituwebserver"
+homepage = "https://github.com/decatur/whatchamacallit"
+repository = "https://github.com/decatur/whatchamacallit"
 license = "MIT"
 readme = "README.md"
+keywords = ["JavaScript", "Import Maps"]
 packages = [
     { include = "whatchamacallit" }
 ]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+importlib-resources = "^3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
