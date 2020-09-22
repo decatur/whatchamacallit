@@ -8,17 +8,16 @@ from typing import List, Tuple, Generator, Dict
 import importlib_resources
 
 
-# Bundlers:
-# Unpkg.com, rollup, webpack, babel, pika, assetgraph, Browserify,
-# gulp, JSPM
-# In Place:
-# snowflake, Open Web Components, browser sync, es-module-shims
-# See
-#   http://dplatz.de/blog/2019/es6-bare-imports.html
-#   https://jakearchibald.com/2017/es-modules-in-browsers/
-#   https://medium.com/@dmnsgn/in-2020-go-bundler-free-eb29c1f05fc9
-#   https://wicg.github.io/import-maps/
-#   https://medium.com/@dmnsgn/es-modules-in-the-browser-almost-now-3638ffafdc68
+class ImportToPackageMapper:
+    def __contains__(self, item) -> bool:
+        if not re.match(r'\w+/', item):
+            return False
+        return importlib.util.find_spec(item[:-1]) is not None
+
+    def __getitem__(self, item):
+        if not self.__contains__(item):
+            raise KeyError(item)
+        return '/@' + item
 
 
 def process_file(source: Path, target: Path, spec_mapping: Dict[str, str]):
@@ -69,12 +68,18 @@ def process_imports(src: str, imports: Dict[str, str], scopes: dict = None) -> T
     is_import_section = re.match(r'\s*(import|export)\s', import_section) is not None
     if is_import_section:
         was_patched = False
-        for key, value in imports.items():
-            import_section, patch_count = re.subn(
-                r'((import|export).*?) (["\'])' + key,
-                r'\1 \3' + value,
-                import_section, flags=re.DOTALL)
-            was_patched |= patch_count > 0
+        a = []
+        index = 0
+        for spec_match in re.finditer(r'(import|export).*? ["\'](\w+/)', import_section, flags=re.DOTALL):
+            specifier = spec_match.group(2)
+            assert specifier in imports, f'EcmaScript bare specifier not mapped: {specifier}'
+            was_patched = True
+            a.append(import_section[index:spec_match.start(2)])
+            index = spec_match.end(2)
+            a.append(imports[specifier])
+
+        a.append(import_section[index:])
+        import_section = ''.join(a)
 
         if was_patched:
             return src[0:end_of_comments] + import_section + src[end_of_comments + m.start():], was_patched
@@ -98,7 +103,7 @@ class MyHTMLParser(HTMLParser):
     def print(self, data):
         self.buffer.append(data)
 
-    def process_ref(self, ref: str):
+    def process_ref(self, ref: str) -> str:
         parts = ref.split('/')
         if len(parts) > 1 and parts[0] + '/' in self.import_mappings:
             return ref.replace(parts[0] + '/', self.import_mappings[parts[0] + '/'])
@@ -149,14 +154,16 @@ def process_dir_recursive(source: Path, target_root: Path, spec_mapping: Dict[st
 
 
 def resolve_package_resource(path: Path) -> Path:
-    if len(path.parts) == 1 or not path.suffix:
+    if len(path.parts) == 1 or not path.suffix or not path.parts[0][0] == '@':
         return path
 
-    prefix = path.parts[0].replace('@', '')
+    prefix = path.parts[0][1:]
     # Only finds the spec if package contains a __init__.py!
 
     spec = importlib.util.find_spec(prefix)
     if not spec:
         return path
 
+    # Hopefully this also works for nested directories, see
+    # https://gitlab.com/python-devs/importlib_resources/-/issues/58
     return importlib_resources.files(prefix).joinpath(Path(*path.parts[1:]))

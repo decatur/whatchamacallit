@@ -7,14 +7,18 @@ homepage = "https://github.com/decatur/whatchamacallit"
 repository = "https://github.com/decatur/whatchamacallit"
 license = "MIT"
 readme = "README.md"
-keywords = ["JavaScript", "Import Maps"]
+keywords = ["EcmaScript", "Module", "Import"]
+classifiers = [
+    "Programming Language :: JavaScript",
+    "License :: OSI Approved :: MIT License"
+]
 packages = [
     { include = "whatchamacallit" }
 ]
 
 [tool.poetry.dependencies]
 python = "^3.6"
-importlib-resources = "^3.0"
+importlib-resources = { version = "^3.0", python = "<3.9" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"

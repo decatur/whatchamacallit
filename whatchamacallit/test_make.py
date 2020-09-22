@@ -42,7 +42,7 @@ def test_comment():
     m = re.search(r'(function|const|let|var)\s', src[end_of_comments:], flags=re.DOTALL)
     print(m)
     imports = src[end_of_comments:end_of_comments + m.start()]
-    is_import_section = re.match('\s*import\s', imports) is not None
+    is_import_section = re.match(r'\s*import\s', imports) is not None
     if is_import_section:
         pass
 
@@ -132,4 +132,7 @@ def test_process_html_imports():
     mapped, was_mapped = make.process_imports_html(src, imports)
     # print(mapped)
     assert mapped == expected
+
+
+
 

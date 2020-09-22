@@ -5,7 +5,7 @@ Specify Javascript modules, HTML, CSS as bare URLs and rewrite on the fly.
 
 # Example
 
-(A) Install the desired package, in this example https://github.com/decatur/grid-chen
+(A) Install the desired package, in this example [gridchen](https://github.com/decatur/grid-chen)
 ````shell script
 pip install gridchen
 ````
@@ -20,12 +20,25 @@ pip install gridchen
 </script>
 ````
 
-(C) Configure the import map
-````python
-spec_mapping: Dict[str, str] = {'gridchen/': '/gridchen/'}
+(C) Register your FastAPI app (see also module whatchamacallit.examples.fastapi_server.py)
+````Python
+from fastapi import FastAPI
+from whatchamacallit.fastapi import register
+
+app = FastAPI()
+register(app)
 ````
 
-(D) Run one of the example servers (FastAPI or Flask)
+or Flask app (see also module whatchamacallit.examples.flask_server.py)
+````Python
+import flask
+from whatchamacallit.flask import register
+
+# Important: Do not use the evil static_url_path
+app = flask.Flask(__name__, static_folder=None)
+register(app)
+````
+
 
 # Working
 
@@ -36,11 +49,11 @@ This is done in two steps.
 ## Remap bare import specifier
 
 The `import * as utils from "gridchen/utils.js"` is **not** valid JavaScript. So at HTML/JavaScript load time the
-import is remapped to `import * as utils from "/gridchen/utils.js"`
+import is remapped to `import * as utils from "/@gridchen/utils.js"`
 
-## Route resources to package modules
+## Route resource to Python module
 
-When the server now gets the request for `/gridchen/utils.js`, then it resolves to the package `gridchen`
+When the server now gets the request for `/@gridchen/utils.js`, then it resolves to the package `gridchen`
 and serve its resource `utils.js`.
 
 # Contribute
@@ -73,3 +86,5 @@ Unpkg.com, rollup, webpack, babel, pika, assetgraph, Browserify, gulp, JSPM
 * https://medium.com/@dmnsgn/in-2020-go-bundler-free-eb29c1f05fc9
 * https://wicg.github.io/import-maps/
 * https://medium.com/@dmnsgn/es-modules-in-the-browser-almost-now-3638ffafdc68
+* https://github.com/fanstatic/fanstatic
+* Packages on [PyPI starting with js.](https://pypi.org/search/?q=%22js.%22&o=)
