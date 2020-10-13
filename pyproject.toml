@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whatchamacallit"
-version = "0.0.3"
+version = "0.0.4"
 description = "Use web resources the pythonic way, import JavaScript modules like you do with Python modules."
 authors = ["Wolfgang Kühn"]
 homepage = "https://github.com/decatur/whatchamacallit"

@@ -116,7 +116,9 @@ class MyHTMLParser(HTMLParser):
         for key, value in attrs:
             if key in {'src', 'href', 'cite', 'data', 'srcset'}:
                 value = self.process_ref(value)
-            self.print(f' {key}="{value}"')
+            self.print(f' {key}')
+            if value is not None:
+                self.print(f'="{value}"')
         self.print('>')
 
     def handle_endtag(self, tag):
@@ -134,7 +136,7 @@ class MyHTMLParser(HTMLParser):
         self.print(f'<!{data}>')
 
 
-def process_imports_html(src:str, imports: Dict[str, str], scopes: dict = None) -> Tuple[str, bool]:
+def process_imports_html(src: str, imports: Dict[str, str], scopes: dict = None) -> Tuple[str, bool]:
     parser = MyHTMLParser(imports)
     parser.feed(src)
     return ''.join(parser.buffer), False
@@ -142,14 +144,14 @@ def process_imports_html(src:str, imports: Dict[str, str], scopes: dict = None) 
 
 def process_dir(source: Generator[Path, None, None], target_root: Path, spec_mapping: Dict[str, str]):
     for elem in source:
-        if elem.is_file():
+        if elem.is_file() and elem.suffix in {'.html', '.js', '.css'}:
             process_file(elem, target_root / elem, spec_mapping)
 
 
 def process_dir_recursive(source: Path, target_root: Path, spec_mapping: Dict[str, str]):
     for elem in source.rglob('*.*'):
         p = Path('./') / elem
-        if p.is_file():
+        if p.is_file() and elem.suffix in {'.html', '.js', '.css'}:
             process_file(p, target_root / elem, spec_mapping)
 
 
