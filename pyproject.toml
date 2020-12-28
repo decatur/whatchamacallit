@@ -19,3 +19,7 @@ importlib-resources = { version = "^3.0", python = "<3.9" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^4.0"
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
