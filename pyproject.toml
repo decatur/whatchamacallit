@@ -12,9 +12,6 @@ classifiers = [
     "Programming Language :: JavaScript",
     "License :: OSI Approved :: MIT License"
 ]
-packages = [
-    { include = "whatchamacallit" }
-]
 
 [tool.poetry.dependencies]
 python = "^3.6"
