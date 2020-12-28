@@ -19,8 +19,8 @@ def import_remap(path: pathlib.Path, spec_mapping: Dict[str, str]):
     return Response(content=make.read_file(source, spec_mapping), media_type=mimetypes.guess_type(source.name)[0])
 
 
-def register(app: FastAPI):
-    spec_mapping = ImportToPackageMapper()
+def register(app: FastAPI, root_path: str = ''):
+    spec_mapping = ImportToPackageMapper(root_path)
 
     @app.get(r"/{file_path:path}\.js")
     def read_js(file_path: str):

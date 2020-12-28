@@ -20,6 +20,6 @@ def import_remap(path: pathlib.Path, spec_mapping: Dict[str, str]):
     return Response(make.read_file(source, spec_mapping), mimetype=mimetypes.guess_type(source.name)[0])
 
 
-def register(app: Flask):
-    spec_mapping = ImportToPackageMapper()
+def register(app: Flask, root_path: str = ''):
+    spec_mapping = ImportToPackageMapper(root_path)
     app.before_request(lambda: import_remap(pathlib.Path(request.path[1:]), spec_mapping))

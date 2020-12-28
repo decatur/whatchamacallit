@@ -9,6 +9,9 @@ import importlib_resources
 
 
 class ImportToPackageMapper:
+    def __init__(self, root_path: str):
+        self.root_path = root_path
+
     def __contains__(self, item) -> bool:
         if not re.match(r'\w+/', item):
             return False
@@ -17,7 +20,7 @@ class ImportToPackageMapper:
     def __getitem__(self, item):
         if not self.__contains__(item):
             raise KeyError(item)
-        return '/@' + item
+        return self.root_path + '/@' + item
 
 
 def process_file(source: Path, target: Path, spec_mapping: Dict[str, str]):

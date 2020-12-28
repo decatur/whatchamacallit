@@ -65,6 +65,7 @@ vi pyproject.toml
 git add pyproject.toml
 git commit -m'bumped version'
 git tag x.y.z
+git push & git push --tags
 poetry build
 
 ## Publishing
