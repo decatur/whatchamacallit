@@ -4,8 +4,12 @@ import shutil
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import List, Tuple, Generator, Dict
+import importlib.util
 
-import importlib_resources
+try:
+    import importlib_resources as resources
+except ModuleNotFoundError:
+    from importlib import resources
 
 
 class ImportToPackageMapper:
@@ -123,6 +127,8 @@ class MyHTMLParser(HTMLParser):
             if value is not None:
                 self.print(f'="{value}"')
         self.print('>')
+        if tag == "head":
+            self.print(f'<link href="{self.import_mappings.root_path}/" rel="index">')
 
     def handle_endtag(self, tag):
         self.is_script = False
@@ -171,4 +177,4 @@ def resolve_package_resource(path: Path) -> Path:
 
     # Hopefully this also works for nested directories, see
     # https://gitlab.com/python-devs/importlib_resources/-/issues/58
-    return importlib_resources.files(prefix).joinpath(Path(*path.parts[1:]))
+    return resources.files(prefix).joinpath(Path(*path.parts[1:]))

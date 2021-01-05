@@ -1,5 +1,6 @@
 import re
 from whatchamacallit import make
+from whatchamacallit.make import ImportToPackageMapper
 
 
 def test_read_file():
@@ -80,9 +81,20 @@ function foo() {}
 
 
 def test_process_html_imports():
-    imports = {
-        "gridchen/": "https://decatur.github.io/grid-chen/gridchen/"
-    }
+    class Foo(ImportToPackageMapper):
+        def __init__(self, root_path):
+            super().__init__(root_path)
+            self._imports = {
+                "gridchen/": "https://decatur.github.io/grid-chen/gridchen/"
+            }
+
+        def __contains__(self, item):
+            return item in self._imports
+
+        def __getitem__(self, item):
+            return self._imports[item]
+
+    imports = Foo('/prefix')
 
     src = """<!DOCTYPE html>
 <html lang="en">
@@ -110,7 +122,7 @@ def test_process_html_imports():
     expected = """<!DOCTYPE html>
 <html lang="en">
 
-<head>
+<head><link href="/prefix" rel="index">
     <meta charset="UTF-8">
     <title>form-chen Master-Detail</title>
     <link rel="stylesheet" href="https://decatur.github.io/grid-chen/gridchen/demo.css">
@@ -121,7 +133,7 @@ def test_process_html_imports():
     <h1><a href="index.html">form-chen</a> / Master-Detail Demo</h1>
     <img src="https://decatur.github.io/grid-chen/gridchen/foo.png">
 </body>
-<script nomodule="None">alert('Your browser is not supported')</script>
+<script nomodule>alert('Your browser is not supported')</script>
 <script type="module">
     import * as demo from "https://decatur.github.io/grid-chen/gridchen/demo.js"
 
