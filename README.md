@@ -66,12 +66,12 @@ git add pyproject.toml
 git commit -m'bumped version'
 git tag x.y.z
 git push & git push --tags
-poetry build
+python3 setup.py sdist bdist_wheel
 
 ## Publishing
 
 ````shell script
-poetry publish
+python3 -m twine upload --repository testpypi dist/*
 ````
 
 # Previous Work
