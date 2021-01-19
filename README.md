@@ -61,8 +61,8 @@ and serve its resource `utils.js`.
 ## Package
 
 ````shell script
-vi pyproject.toml
-git add pyproject.toml
+vi setup.py
+git add setup.py
 git commit -m'bumped version'
 git tag x.y.z
 git push & git push --tags
