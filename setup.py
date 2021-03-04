@@ -17,4 +17,5 @@ setup(name='whatchamacallit',
     packages=['whatchamacallit', 'whatchamacallit.examples'],
     package_data={'': ['*']},
     extras_require={':python_version < "3.9"': ['importlib-resources>=3.0,<4.0']},
-    python_requires='>=3.6,<4.0',)
+    python_requires='>=3.6,<4.0'
+)
